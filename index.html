@@ -3,17 +3,48 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Francesca's Portfolio Chatbot</title>
-  <script src="chat.js" defer></script>
-  <style>
-    #chatbot-container { /* Chat container styling */ }
-    .user-message { /* User message styling */ }
-    .chatbot-response { /* Chatbot response styling */ }
-  </style>
+  <title>Chatbot</title>
 </head>
 <body>
-  <div id="chatbot-container"></div>
-  <input type="text" id="user-input" placeholder="Ask me something..." />
-  <button id="submit-btn">Send</button>
+  <div id="chat-container">
+    <div id="messages"></div> <!-- Display messages here -->
+    <input type="text" id="user-input" placeholder="Ask me something...">
+    <button id="send-btn">Send</button>
+  </div>
+
+  <script>
+    const sendButton = document.getElementById("send-btn");
+    const userInput = document.getElementById("user-input");
+    const messagesDiv = document.getElementById("messages");
+
+    sendButton.addEventListener("click", async () => {
+      const userMessage = userInput.value;
+      if (userMessage.trim()) {
+        // Display user message
+        const userMessageElement = document.createElement("div");
+        userMessageElement.textContent = `You: ${userMessage}`;
+        messagesDiv.appendChild(userMessageElement);
+
+        // Send message to backend
+        const response = await fetch("/api/chat", {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json"
+          },
+          body: JSON.stringify({ message: userMessage })
+        });
+
+        const data = await response.json();
+
+        // Display chatbot's response
+        const botMessageElement = document.createElement("div");
+        botMessageElement.textContent = `Bot: ${data.message}`;
+        messagesDiv.appendChild(botMessageElement);
+
+        // Clear the input field after sending the message
+        userInput.value = "";
+      }
+    });
+  </script>
 </body>
 </html>
