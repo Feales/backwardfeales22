@@ -1,30 +1,38 @@
-// api/chat.js
-export default async function handler(req, res) {
-  if (req.method !== 'POST') {
-    return res.status(405).json({ error: 'Method not allowed' });
-  }
+document.addEventListener("DOMContentLoaded", () => {
+  const chatbotContainer = document.getElementById("chatbot-container");
 
-  const { message } = req.body;
+  // Create chatbot response function
+  const chatbotResponse = (message) => {
+    const response = document.createElement("div");
+    response.classList.add("chatbot-response");
+    response.innerHTML = message;
+    chatbotContainer.appendChild(response);
+  };
 
-  try {
-    const openaiRes = await fetch('https://api.openai.com/v1/chat/completions', {
-      method: 'POST',
-      headers: {
-        'Content-Type': 'application/json',
-        'Authorization': `Bearer ${process.env.OPENAI_API_KEY}`
-      },
-      body: JSON.stringify({
-        model: 'gpt-3.5-turbo',
-        messages: [{ role: 'user', content: message }]
-      })
-    });
+  // Handle user input
+  const userInputHandler = () => {
+    const userMessage = document.getElementById("user-input").value;
 
-    const data = await openaiRes.json();
-    const reply = data.choices?.[0]?.message?.content;
+    if (userMessage) {
+      const userMessageElement = document.createElement("div");
+      userMessageElement.classList.add("user-message");
+      userMessageElement.innerHTML = userMessage;
+      chatbotContainer.appendChild(userMessageElement);
 
-    res.status(200).json({ message: reply });
-  } catch (error) {
-    console.error(error);
-    res.status(500).json({ error: 'Something went wrong' });
-  }
-}
+      // Clear the input field
+      document.getElementById("user-input").value = "";
+
+      // Display a response based on user input
+      if (userMessage.toLowerCase().includes("hello")) {
+        chatbotResponse("Hi there! 👋 How can I help you today?");
+      } else if (userMessage.toLowerCase().includes("portfolio")) {
+        chatbotResponse("You're on my portfolio page! You can ask me about my work.");
+      } else {
+        chatbotResponse("Sorry, I didn't understand that. Try saying 'Hello' or 'Portfolio'.");
+      }
+    }
+  };
+
+  // Trigger the chatbot response when user submits input
+  document.getElementById("submit-btn").addEventListener("click", userInputHandler);
+});
